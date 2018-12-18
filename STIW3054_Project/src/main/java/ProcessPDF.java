@@ -3,9 +3,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 public class ProcessPDF implements Callable<ObjectPDF>, ProcessPDFInterface {
     private String path, fileName;
@@ -22,8 +24,9 @@ public class ProcessPDF implements Callable<ObjectPDF>, ProcessPDFInterface {
         int wordsNumber = countWords(text);
         int charactersNumber = countTotalCharacters(text);
         HashMap<Character, Integer> charactersHashMap = countCharacters(text);
+        ArrayList<Integer> wordsLengthArrayList = countCharactersLengthList(text);
 
-        objectPDF.setPDFObject(fileName, wordsNumber, charactersNumber, charactersHashMap);
+        objectPDF.setPDFObject(fileName, wordsNumber, charactersNumber, charactersHashMap, wordsLengthArrayList);
         return objectPDF;
     }
 
@@ -43,8 +46,8 @@ public class ProcessPDF implements Callable<ObjectPDF>, ProcessPDFInterface {
 
     @Override
     public int countWords(String text) {
-        StringTokenizer tokenizer = new StringTokenizer(text);
-        return tokenizer.countTokens();
+        String[] words = text.toUpperCase().split("[^A-Z]+");
+        return words.length;
     }
 
     @Override
@@ -58,9 +61,9 @@ public class ProcessPDF implements Callable<ObjectPDF>, ProcessPDFInterface {
         HashMap<Character, Integer> characterIntegerHashMap = new HashMap<>();
         char[] chars = text.toUpperCase().toCharArray();
 
-        for (char c : chars){
+        for (char c : chars) {
             if (c >= 'A' && c <= 'Z') {
-                if (characterIntegerHashMap.containsKey(c)){
+                if (characterIntegerHashMap.containsKey(c)) {
                     characterIntegerHashMap.put(c, characterIntegerHashMap.get(c) + 1);
                 } else {
                     characterIntegerHashMap.put(c, 1);
@@ -68,6 +71,15 @@ public class ProcessPDF implements Callable<ObjectPDF>, ProcessPDFInterface {
             }
         }
         return characterIntegerHashMap;
+    }
+
+    @Override
+    public ArrayList<Integer> countCharactersLengthList(String text) {
+        ArrayList<Integer> wordsLengthArrayList;
+        String[] textArray = text.toUpperCase().split("[^A-Z]+");
+        wordsLengthArrayList = Arrays.stream(textArray).filter(s ->
+                s.length() > 0).map(String::length).collect(Collectors.toCollection(ArrayList::new));
+        return wordsLengthArrayList;
     }
 
 }
