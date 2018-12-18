@@ -1,26 +1,36 @@
+import org.apache.commons.math3.stat.descriptive.moment.Mean;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.math3.stat.descriptive.moment.Variance;
+
 import java.util.ArrayList;
-import java.util.concurrent.Future;
 
 public class CountCommonsMath implements CountCommonsMathInterface {
-    private ArrayList<Future<ObjectPDF>> objectPDFArrayList;
+    private double[] mathArray;
 
-    CountCommonsMath(ArrayList<Future<ObjectPDF>> oobjectPDFArrayList) {
-        this.objectPDFArrayList = oobjectPDFArrayList;
+    CountCommonsMath(ArrayList<Integer> integerArrayList) {
+
+        mathArray = new double[integerArrayList.size()];
+        for (int i = 0; i < mathArray.length; i++) {
+            mathArray[i] = integerArrayList.get(i);
+        }
     }
 
     @Override
     public double countMean() {
-        return 0;
+        Mean mean = new Mean();
+        return mean.evaluate(mathArray);
     }
 
     @Override
     public double countVariance() {
-        return 0;
+        Variance variance = new Variance();
+        return variance.evaluate(mathArray);
     }
 
     @Override
     public double countSD() {
-        return 0;
+        StandardDeviation standardDeviation = new StandardDeviation();
+        return standardDeviation.evaluate(mathArray);
     }
 
 }
