@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class MainClass {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         int processor = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(processor);
         ArrayList<Future<ObjectPDF>> futureArrayList;
@@ -27,27 +27,18 @@ public class MainClass {
         }
         // Start Reading PDF using Executor
         futureArrayList = Arrays.stream(pdfFile).map(file ->
-                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit).collect(Collectors.toCollection(ArrayList::new));
-        /*
-        for (File file : pdfFile) {
-            ProcessPDF processPDF = new ProcessPDF(file.toString(), file.getName());
-            Future<ObjectPDF> futureObjectPDF = executorService.submit(processPDF);
-            futureArrayList.add(futureObjectPDF);
-        }
-        */
+                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         executorService.shutdown();
         /*
         System.out.println("$---------- Each File Detail ----------$");
-        try {
-            for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
-                System.out.println("File Name : " + objectPDFFuture.get().getFileName());
-                System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
-                System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
-                System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
-                System.out.println();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
+            System.out.println("File Name : " + objectPDFFuture.get().getFileName());
+            System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
+            System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
+            System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
+            System.out.println();
         }
         */
         CountTotalPDF countTotalPDF = new CountTotalPDF(futureArrayList);
@@ -73,11 +64,22 @@ public class MainClass {
         ArrayList<Double> zScoreArrayList = countZscore.countZscore();
         //zScoreArrayList.forEach(aDouble -> System.out.println("Z-score : " + aDouble));
 
+        ExecutorService es = Executors.newFixedThreadPool(2);
         GraphNormalization graphNormalization = new GraphNormalization(zScoreArrayList);
-        DrawBoxplot drawBoxplot = new DrawBoxplot();
+        Thread t1 = new Thread(() -> {
+            try {
+                graphNormalization.normalizationGraph();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
-        graphNormalization.normalizationGraph();
-        drawBoxplot.boxplotGraph();
+        DrawBoxplot drawBoxplot = new DrawBoxplot(zScoreArrayList);
+        Thread t2 = new Thread(drawBoxplot::boxplotGraph);
+
+        es.execute(t1);
+        es.execute(t2);
+        es.shutdown();
     }
 
 }
