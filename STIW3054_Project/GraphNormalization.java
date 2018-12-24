@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
@@ -11,12 +12,16 @@ public class GraphNormalization implements GraphNormalizationInterface {
     private double[] copyData;
     private XYChart xyChart = null;
     private SwingWrapper<XYChart> swingWrapper = null;
+=======
+public class GraphNormalization implements GraphNormalizationInterface {
+>>>>>>> b88019692d6ddc5d123e8e01175e5a739a0f4f61
 
-    GraphNormalization(ArrayList<Double> zScoreArrayList) {
-        this.zScoreArrayList = zScoreArrayList;
+    GraphNormalization() {
+        // constructor
     }
 
     @Override
+<<<<<<< HEAD
     public void normalizationGraph() throws InterruptedException {
         createChart();
         createSwingWrapper();
@@ -39,6 +44,10 @@ public class GraphNormalization implements GraphNormalizationInterface {
     private void createSwingWrapper() {
         swingWrapper = new SwingWrapper<>(xyChart);
         swingWrapper.displayChart();
+=======
+    public void normalizationGraph() {
+        // Do normalization Graph code here
+>>>>>>> b88019692d6ddc5d123e8e01175e5a739a0f4f61
     }
 
     private void updateData() throws InterruptedException {
