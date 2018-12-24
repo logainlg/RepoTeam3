@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class MainClass {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         int processor = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(processor);
         ArrayList<Future<ObjectPDF>> futureArrayList;
@@ -27,28 +27,18 @@ public class MainClass {
         }
         // Start Reading PDF using Executor
         futureArrayList = Arrays.stream(pdfFile).map(file ->
-                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit).collect(Collectors.toCollection(ArrayList::new));
-        /*
-        for (File file : pdfFile) {
-            ProcessPDF processPDF = new ProcessPDF(file.toString(), file.getName());
-            Future<ObjectPDF> futureObjectPDF = executorService.submit(processPDF);
-            futureArrayList.add(futureObjectPDF);
-        }
-        */
+                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         executorService.shutdown();
         /*
         System.out.println("$---------- Each File Detail ----------$");
-        try {
-            for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
-                System.out.println("File Name : " + objectPDFFuture.get().getFileName());
-                System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
-                System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
-                System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
-                System.out.println("ArrayList of Words Length : " + objectPDFFuture.get().getWordsLengthArrayList().size());
-                System.out.println();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
+            System.out.println("File Name : " + objectPDFFuture.get().getFileName());
+            System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
+            System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
+            System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
+            System.out.println();
         }
         */
         CountTotalPDF countTotalPDF = new CountTotalPDF(futureArrayList);
@@ -61,7 +51,6 @@ public class MainClass {
 
         ArrayList<Integer> charactersLengthArrayList = countTotalPDF.countCharactersLengthList();
         CountCommonsMath countCommonsMath = new CountCommonsMath(charactersLengthArrayList);
-      
         double mean = countCommonsMath.countMean();
         double variance = countCommonsMath.countVariance();
         double standardDeviation = countCommonsMath.countSD();
@@ -75,10 +64,10 @@ public class MainClass {
         ArrayList<Double> zScoreArrayList = countZscore.countZscore();
         //zScoreArrayList.forEach(aDouble -> System.out.println("Z-score : " + aDouble));
 
-        GraphNormalization graphNormalization = new GraphNormalization();
+        GraphNormalization graphNormalization = new GraphNormalization(zScoreArrayList);
         graphNormalization.normalizationGraph();
-      
-        DrawBoxplot drawBoxplot = new DrawBoxplot();        
+
+        DrawBoxplot drawBoxplot = new DrawBoxplot();
         drawBoxplot.boxplotGraph();
     }
 

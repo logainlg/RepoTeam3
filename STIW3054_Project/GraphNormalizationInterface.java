@@ -1,3 +1,3 @@
 public interface GraphNormalizationInterface {
-    public void normalizationGraph();
+    public void normalizationGraph() throws InterruptedException;
 }
