@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public interface CountZscoreInterface {
-    public double countZscore();
+    public ArrayList<Double> countZscore();
 }
