@@ -41,6 +41,13 @@
             <artifactId>xchart</artifactId>
             <version>3.5.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+
 
     </dependencies>
 

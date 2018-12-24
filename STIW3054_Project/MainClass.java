@@ -33,6 +33,7 @@ public class MainClass {
         executorService.shutdown();
         /*
         System.out.println("$---------- Each File Detail ----------$");
+
         for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
             System.out.println("File Name : " + objectPDFFuture.get().getFileName());
             System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
@@ -64,11 +65,23 @@ public class MainClass {
         ArrayList<Double> zScoreArrayList = countZscore.countZscore();
         //zScoreArrayList.forEach(aDouble -> System.out.println("Z-score : " + aDouble));
 
+        ExecutorService es = Executors.newFixedThreadPool(2);
         GraphNormalization graphNormalization = new GraphNormalization(zScoreArrayList);
-        graphNormalization.normalizationGraph();
+        Thread t1 = new Thread(() -> {
+            try {
+                graphNormalization.normalizationGraph();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
-        DrawBoxplot drawBoxplot = new DrawBoxplot();
-        drawBoxplot.boxplotGraph();
+        DrawBoxplot drawBoxplot = new DrawBoxplot(zScoreArrayList);
+        Thread t2 = new Thread(drawBoxplot::boxplotGraph);
+
+        es.execute(t1);
+        es.execute(t2);
+        es.shutdown();
+
     }
 
 }
