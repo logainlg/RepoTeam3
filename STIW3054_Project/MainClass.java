@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class MainClass {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         int processor = Runtime.getRuntime().availableProcessors();
         ExecutorService executorService = Executors.newFixedThreadPool(processor);
         ArrayList<Future<ObjectPDF>> futureArrayList;
@@ -27,29 +27,18 @@ public class MainClass {
         }
         // Start Reading PDF using Executor
         futureArrayList = Arrays.stream(pdfFile).map(file ->
-                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit).collect(Collectors.toCollection(ArrayList::new));
-        /*
-        for (File file : pdfFile) {
-            ProcessPDF processPDF = new ProcessPDF(file.toString(), file.getName());
-            Future<ObjectPDF> futureObjectPDF = executorService.submit(processPDF);
-            futureArrayList.add(futureObjectPDF);
-        }
-        */
+                new ProcessPDF(file.toString(), file.getName())).map(executorService::submit)
+                .collect(Collectors.toCollection(ArrayList::new));
+
         executorService.shutdown();
         /*
         System.out.println("$---------- Each File Detail ----------$");
-        try {
-            for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
-                System.out.println("File Name : " + objectPDFFuture.get().getFileName());
-                System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
-                System.out.println("ArrayList of Words Length : " + objectPDFFuture.get().getWordsLengthArrayList().size());
-                System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
-                System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
-                //System.out.println(objectPDFFuture.get().getWordsLengthArrayList());
-                System.out.println();
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        for (Future<ObjectPDF> objectPDFFuture : futureArrayList) {
+            System.out.println("File Name : " + objectPDFFuture.get().getFileName());
+            System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
+            System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
+            System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
+            System.out.println();
         }
         */
         CountTotalPDF countTotalPDF = new CountTotalPDF(futureArrayList);
@@ -60,7 +49,8 @@ public class MainClass {
         System.out.println("Total Characters : " + countTotalPDF.calculateTotalCharacters());
         countTotalPDF.charactersHashMap().forEach((key, value) -> System.out.print(key + ":" + value + " "));
 
-        CountCommonsMath countCommonsMath = new CountCommonsMath(countTotalPDF.countCharactersLengthList());
+        ArrayList<Integer> charactersLengthArrayList = countTotalPDF.countCharactersLengthList();
+        CountCommonsMath countCommonsMath = new CountCommonsMath(charactersLengthArrayList);
         double mean = countCommonsMath.countMean();
         double variance = countCommonsMath.countVariance();
         double standardDeviation = countCommonsMath.countSD();
@@ -70,14 +60,14 @@ public class MainClass {
         System.out.printf("%nVariance : %.4f", variance);
         System.out.printf("%nStandard Deviation : %.4f", standardDeviation);
 
-        CountZscore countZscore = new CountZscore();
-        double zScore = countZscore.countZscore();
-        System.out.printf("%nZ score : %.4f", zScore);
+        CountZscore countZscore = new CountZscore(mean, standardDeviation, charactersLengthArrayList);
+        ArrayList<Double> zScoreArrayList = countZscore.countZscore();
+        //zScoreArrayList.forEach(aDouble -> System.out.println("Z-score : " + aDouble));
 
-        GraphNormalization graphNormalization = new GraphNormalization();
-        DrawBoxplot drawBoxplot = new DrawBoxplot();
-
+        GraphNormalization graphNormalization = new GraphNormalization(zScoreArrayList);
         graphNormalization.normalizationGraph();
+
+        DrawBoxplot drawBoxplot = new DrawBoxplot();
         drawBoxplot.boxplotGraph();
     }
 
