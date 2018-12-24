@@ -44,6 +44,7 @@ public class MainClass {
                 System.out.println("Words : " + objectPDFFuture.get().getWordsNumber());
                 System.out.println("Characters : " + objectPDFFuture.get().getCharactersNumber());
                 System.out.println("List : " + objectPDFFuture.get().getCharacterHashMap());
+                System.out.println("ArrayList of Words Length : " + objectPDFFuture.get().getWordsLengthArrayList().size());
                 System.out.println();
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -60,6 +61,7 @@ public class MainClass {
 
         ArrayList<Integer> charactersLengthArrayList = countTotalPDF.countCharactersLengthList();
         CountCommonsMath countCommonsMath = new CountCommonsMath(charactersLengthArrayList);
+      
         double mean = countCommonsMath.countMean();
         double variance = countCommonsMath.countVariance();
         double standardDeviation = countCommonsMath.countSD();
@@ -73,10 +75,10 @@ public class MainClass {
         ArrayList<Double> zScoreArrayList = countZscore.countZscore();
         //zScoreArrayList.forEach(aDouble -> System.out.println("Z-score : " + aDouble));
 
-        GraphNormalization graphNormalization = new GraphNormalization(zScoreArrayList);
-        DrawBoxplot drawBoxplot = new DrawBoxplot();
-
+        GraphNormalization graphNormalization = new GraphNormalization();
         graphNormalization.normalizationGraph();
+      
+        DrawBoxplot drawBoxplot = new DrawBoxplot();        
         drawBoxplot.boxplotGraph();
     }
 
